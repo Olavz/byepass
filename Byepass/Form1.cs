@@ -1,17 +1,11 @@
 ﻿using Byepass.Properties;
+using IWshRuntimeLibrary;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using tessnet2;
 
@@ -128,13 +122,13 @@ namespace Byepass
                 Log("Init tessaract resource files..");
 
                 // Copy ZIP to disk...
-                File.WriteAllBytes(tessZipPath, Properties.Resources.tessdata);
+                System.IO.File.WriteAllBytes(tessZipPath, Properties.Resources.tessdata);
 
                 // Unzip tessdata.zip..
                 System.IO.Compression.ZipFile.ExtractToDirectory(tessZipPath, tessExtractPath);
 
                 // Remove the zip file.
-                File.Delete(tessZipPath);
+                System.IO.File.Delete(tessZipPath);
 
                 Log(tessExtractPath);
             }
@@ -293,9 +287,26 @@ namespace Byepass
             Log("Path: " + processPath);
         }
 
+        private void createDesktopShortcut()
+        {
+            object shDesktop = (object)"Desktop";
+            WshShell shell = new WshShell();
+            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + @"\Byepass.lnk";
+            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
+            shortcut.Description = "New shortcut for a Byepass";
+            shortcut.Arguments = "-run";
+            shortcut.TargetPath = System.Windows.Forms.Application.StartupPath + @"\Byepass.exe";
+            shortcut.Save();
+        }
+
         private void startToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StartProcessing();
+        }
+
+        private void createDesktopShortcutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createDesktopShortcut();
         }
     }
 }
