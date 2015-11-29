@@ -247,9 +247,11 @@ namespace Byepass
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.ShowDialog();
-            txtProcessHome.Text = ofd.FileName.ToString();
-            SaveProcessPath(ofd.FileName.ToString());
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                txtProcessHome.Text = ofd.FileName.ToString();
+                SaveProcessPath(ofd.FileName.ToString());
+            }
         }
 
         private void btnSetPin_Click(object sender, EventArgs e)
