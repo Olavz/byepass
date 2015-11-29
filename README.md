@@ -6,4 +6,6 @@ To save some additional seconds, make sure to go to ` File -> Create desktop sho
 
 
 
-
+OCR Tessnet2
+--------------------
+The project uses the [Tessnet2](http://www.pixel-technology.com/freeware/tessnet2/) library using the Tesseract engine for OCR. Tessnet2 example code is from [How to use Tessnet2 library](https://code.msdn.microsoft.com/windowsdesktop/How-to-use-Tessnet2-library-716be12f).
