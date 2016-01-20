@@ -85,17 +85,21 @@ namespace Byepass
                 Rectangle rect = new Rectangle(pRect.Left + dxLeft, pRect.Top + dxTop, 200, 50);
 
                 // Wait for form to generate code before we do a screencapture.
-                Thread.Sleep(1000);
                 Log("Taking screenshot of code.");
-                CaptureScreen(rect);
+                CaptureScreen(rect, 5);
                 Log("Exiting Buypass");
                 process.Kill();
             }
         }
 
 
-        private void CaptureScreen(Rectangle rect)
+        private void CaptureScreen(Rectangle rect, int retry)
         {
+            if(retry <= 0)
+            {
+                Log("Number of allowed retries exceeded the allowed number of retries of 5 times.");
+                return;
+            }
             //Rectangle bounds = Screen.GetBounds(Point.Empty);
             Rectangle bounds = rect;
             using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
@@ -106,7 +110,7 @@ namespace Byepass
                     g.CopyFromScreen(new Point(rect.Left, rect.Top), Point.Empty, bounds.Size);
                 }
                 imageDisplay.Image = new Bitmap(bitmap);
-                ProcessImageOCR(bitmap);
+                ProcessImageOCR(bitmap, rect, retry);
             }
         }
 
@@ -135,7 +139,7 @@ namespace Byepass
 
         }
 
-        private void ProcessImageOCR(Bitmap b)
+        private void ProcessImageOCR(Bitmap b, Rectangle rect, int retry)
         {
             Log("Start processing password from image. (OCR)");
             var ocr = new Tesseract();
@@ -146,8 +150,17 @@ namespace Byepass
             foreach (Word word in result)
             {
                 Log("OCR returned: " + word.Text);
-                Clipboard.SetText(word.Text);
-                Log("Password copied to clipboard.");
+                if(word.Text.Length >= 5)
+                {
+                    Clipboard.SetText(word.Text);
+                    Log("Password copied to clipboard.");
+                } else
+                {
+                    Thread.Sleep(1000);
+                    Log("OCR not accepted. Retrying... " + retry);
+                    CaptureScreen(rect, retry - 1);
+                }
+                
             }
 
             if(isFastRun)
